@@ -154,18 +154,31 @@ streznik.post('/izpisiRacunBaza', function(zahteva, odgovor) {
 // Izpis računa v HTML predstavitvi ali izvorni XML obliki
 streznik.get('/izpisiRacun/:oblika', function(zahteva, odgovor) {
   pesmiIzKosarice(zahteva, function(pesmi) {
-    if (!pesmi) {
-      odgovor.sendStatus(500);
-    } else if (pesmi.length == 0) {
-      odgovor.send("<p>V košarici nimate nobene pesmi, \
-        zato računa ni mogoče pripraviti!</p>");
-    } else {
-      odgovor.setHeader('content-type', 'text/xml');
-      odgovor.render('eslog', {
-        vizualiziraj: zahteva.params.oblika == 'html' ? true : false,
-        postavkeRacuna: pesmi
-      })  
-    }
+    var stranka;
+    vrniStranke(function(napaka, stranke) {
+      if (napaka) {
+        console.log("Prišlo je do napake.")
+      } else {
+        for (var i = 0; i < stranke.length; i++) {
+          if (stranke[i].CustomerId == zahteva.session.CustomerId) {
+            if (!pesmi) {
+              odgovor.sendStatus(500);
+            } else if (pesmi.length == 0) {
+              odgovor.send("<p>V košarici nimate nobene pesmi, \
+                zato računa ni mogoče pripraviti!</p>");
+            } else {
+              odgovor.setHeader('content-type', 'text/xml');
+              odgovor.render('eslog', {
+                vizualiziraj: zahteva.params.oblika == 'html' ? true : false,
+                postavkeRacuna: pesmi,
+                strankaRacuna: stranke[i]
+              })
+            }
+            break;
+          }
+        }
+      }
+    });
   })
 })
 
@@ -231,15 +244,19 @@ streznik.get('/prijava', function(zahteva, odgovor) {
 // Prikaz nakupovalne košarice za stranko
 streznik.post('/stranka', function(zahteva, odgovor) {
   var form = new formidable.IncomingForm();
-  
+
   form.parse(zahteva, function (napaka1, polja, datoteke) {
+    // console.log(polja);
+    zahteva.session.CustomerId = parseInt(polja.seznamStrank);
+    // console.log(zahteva.session.CustomerId);
     odgovor.redirect('/')
   });
 })
 
 // Odjava stranke
 streznik.post('/odjava', function(zahteva, odgovor) {
-    odgovor.redirect('/prijava') 
+    zahteva.session.destroy();
+    odgovor.redirect('/prijava');
 })
 
 
