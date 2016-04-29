@@ -158,11 +158,14 @@ streznik.post('/izpisiRacunBaza', function(zahteva, odgovor) {
         console.log(polja);
         var idRacuna = parseInt(polja.seznamRacunov);
         pesmiIzRacuna(idRacuna, function(pesmi) {
+          strankaIzRacuna(idRacuna, function(stranka) {
             odgovor.setHeader('content-type', 'text/xml');
             odgovor.render('eslog', {
                 vizualiziraj: true,
-                postavkeRacuna: pesmi
+                postavkeRacuna: pesmi,
+                strankaRacuna: stranka
             });
+          });
         });
     });
 })
