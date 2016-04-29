@@ -198,7 +198,6 @@ var msgUspeh = "";
 // Registracija novega uporabnika
 streznik.post('/prijava', function(zahteva, odgovor) {
   var form = new formidable.IncomingForm();
-  console.log("Klic.");
   form.parse(zahteva, function (napaka1, polja, datoteke) {
     // console.log(polja);
     var napaka2 = false;
@@ -212,11 +211,9 @@ streznik.post('/prijava', function(zahteva, odgovor) {
       //TODO: add fields and finalize
       stmt.run(polja.FirstName, polja.LastName, polja.Company, polja.Address, polja.City, polja.State, polja.Country, polja.PostalCode, polja.Phone, polja.Fax, polja.Email, 3);
       //stmt.finalize();
-      console.log("Dodan vnos.");
       odgovor.redirect('/prijava');
       msgUspeh = "Stranka je bila uspešno registrirana.";
     } catch (err) {
-      console.log("Napaka.");
       odgovor.redirect('/prijava');
       msgUspeh = "Prišlo je do napake pri registraciji nove stranke. Prosim preverite vnešene podatke in poskusite znova.";
       napaka2 = true;
