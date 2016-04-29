@@ -133,9 +133,13 @@ var pesmiIzRacuna = function(racunId, callback) {
     Track.TrackId IN (SELECT InvoiceLine.TrackId FROM InvoiceLine, Invoice \
     WHERE InvoiceLine.InvoiceId = Invoice.InvoiceId AND Invoice.InvoiceId = " + racunId + ")",
     function(napaka, vrstice) {
-      console.log(vrstice);
-      callback(vrstice);
-    })
+      if (napaka) {
+        callback(false);
+      } else {
+        console.log(vrstice);
+        callback(vrstice);
+      }
+    });
 }
 
 // Vrni podrobnosti o stranki iz računa
@@ -154,14 +158,13 @@ streznik.post('/izpisiRacunBaza', function(zahteva, odgovor) {
         console.log(polja);
         var idRacuna = parseInt(polja.seznamRacunov);
         pesmiIzRacuna(idRacuna, function(pesmi) {
-            // odgovor.setHeader('content-type', 'text/xml');
+            odgovor.setHeader('content-type', 'text/xml');
             odgovor.render('eslog', {
                 vizualiziraj: true,
                 postavkeRacuna: pesmi
             });
         });
     });
-    odgovor.end();
 })
 
 // Izpis računa v HTML predstavitvi ali izvorni XML obliki
