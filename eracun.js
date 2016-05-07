@@ -177,20 +177,55 @@ streznik.post('/izpisiRacunBaza', function(zahteva, odgovor) {
 
 // Izpis računa v HTML predstavitvi ali izvorni XML obliki
 streznik.get('/izpisiRacun/:oblika', function(zahteva, odgovor) {
-  pesmiIzKosarice(zahteva, function(pesmi) {
-    if (!pesmi) {
-      odgovor.sendStatus(500);
-    } else if (pesmi.length == 0) {
-      odgovor.send("<p>V košarici nimate nobene pesmi, \
-        zato računa ni mogoče pripraviti!</p>");
-    } else {
-      odgovor.setHeader('content-type', 'text/xml');
-      odgovor.render('eslog', {
-        vizualiziraj: zahteva.params.oblika == 'html' ? true : false,
-        postavkeRacuna: pesmi
-      })
-    }
-  })
+// <<<<<<< HEAD
+//   pesmiIzKosarice(zahteva, function(pesmi) {
+//     if (!pesmi) {
+//       odgovor.sendStatus(500);
+//     } else if (pesmi.length == 0) {
+//       odgovor.send("<p>V košarici nimate nobene pesmi, \
+//         zato računa ni mogoče pripraviti!</p>");
+//     } else {
+//       odgovor.setHeader('content-type', 'text/xml');
+//       odgovor.render('eslog', {
+//         vizualiziraj: zahteva.params.oblika == 'html' ? true : false,
+//         postavkeRacuna: pesmi
+//       })
+//     }
+//   })
+// =======
+  if (!zahteva.session.CustomerId) {
+    odgovor.send('<p>Za izpis računa morate biti prijavljeni v prodajalno.</p>');
+    return;
+  } else {
+    pesmiIzKosarice(zahteva, function(pesmi) {
+      var stranka;
+      vrniStranke(function(napaka, stranke) {
+        if (napaka) {
+          console.log("Prišlo je do napake.")
+        } else {
+          for (var i = 0; i < stranke.length; i++) {
+            if (stranke[i].CustomerId == zahteva.session.CustomerId) {
+              if (!pesmi) {
+                odgovor.sendStatus(500);
+              } else if (pesmi.length == 0) {
+                odgovor.send("<p>V košarici nimate nobene pesmi, \
+                  zato računa ni mogoče pripraviti!</p>");
+              } else {
+                odgovor.setHeader('content-type', 'text/xml');
+                odgovor.render('eslog', {
+                  vizualiziraj: zahteva.params.oblika == 'html' ? true : false,
+                  postavkeRacuna: pesmi,
+                  strankaRacuna: stranke[i]
+                })
+              }
+              break;
+            }
+          }
+        }
+      });
+    })
+  }
+// >>>>>>> prikaz-racuna-trenutni
 })
 
 // Privzeto izpiši račun v HTML obliki
