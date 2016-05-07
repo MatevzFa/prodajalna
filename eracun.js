@@ -147,7 +147,7 @@ var strankaIzRacuna = function(racunId, callback) {
     pb.all("SELECT Customer.* FROM Customer, Invoice \
             WHERE Customer.CustomerId = Invoice.CustomerId AND Invoice.InvoiceId = " + racunId,
     function(napaka, vrstice) {
-      console.log(vrstice);
+      // console.log(vrstice);
       callback(vrstice);
     })
 }
@@ -156,7 +156,7 @@ var strankaIzRacuna = function(racunId, callback) {
 streznik.post('/izpisiRacunBaza', function(zahteva, odgovor) {
     var form = new formidable.IncomingForm();
     form.parse(zahteva, function(napaka1, polja, datoteke) {
-        console.log(polja);
+        // console.log(polja);
         var idRacuna = parseInt(polja.seznamRacunov);
         pesmiIzRacuna(idRacuna, function(pesmi) {
           strankaIzRacuna(idRacuna, function(stranka) {
